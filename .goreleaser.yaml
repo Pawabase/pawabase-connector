@@ -1,0 +1,31 @@
+# Release: push a tag (v0.1.0) and the workflow builds every platform, the archives the install scripts expect, and checksums.txt.
+version: 2
+project_name: pawabase-connector
+
+builds:
+  - id: pawabase-connector
+    main: ./cmd/pawabase-connector
+    binary: pawabase-connector
+    env: [CGO_ENABLED=0]
+    goos: [linux, darwin, windows]
+    goarch: [amd64, arm64]
+    flags: [-trimpath]
+    ldflags:
+      - -s -w -X github.com/Pawabase/pawabase-connector/internal/tunnel.Version={{ .Version }}
+
+archives:
+  - id: default
+    # install.sh and install.ps1 download exactly these names.
+    name_template: "pawabase-connector_{{ .Os }}_{{ .Arch }}"
+    formats: [tar.gz]
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+    files: [README.md, LICENSE]
+
+checksum:
+  name_template: checksums.txt
+  algorithm: sha256
+
+changelog:
+  use: github
